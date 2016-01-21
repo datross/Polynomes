@@ -118,16 +118,49 @@ void printPolynomial(FILE * stream, Polynomial * poly, error_code * err) {
 	
 	Monomial * current_monomial = poly->monomials;
 	
-    fprintf(stream, "degree : %ld | (", poly->degree);
+    if(stream == stdout) fprintf(stream, "degree : %ld | (", poly->degree);
 	for(; current_monomial; current_monomial = current_monomial->next) {
-		fprintf(stream, "(%lf, %ld)", current_monomial->coefficient, current_monomial->degree);
-		if(current_monomial->next)
-			fprintf(stream, ", ");
-		else
-			fprintf(stream, ")");
+		if(stream == stdout) fprintf(stream, "(%lf, %ld)", current_monomial->coefficient, current_monomial->degree);
+        else fprintf(stream, "%lf %ld ", current_monomial->coefficient, current_monomial->degree);
+		if(stream == stdout) {
+            if(current_monomial->next)
+                fprintf(stream, ", ");
+            else
+                fprintf(stream, ")");
+        }
 	}
-    fprintf(stream, "\n");
+    if(stream == stdout) fprintf(stream, "\n");
 }
+
+Polynomial * readPolynomial(FILE * stream, error_code * err) {
+    if(!stream) {
+        if(err) *err = NULL_PTR;
+        return NULL;
+    }
+    
+    char * line = malloc(sizeof(char) * BUFFER_READING);
+    if(!line) {
+        if(err) *err = MEM_ALLOC;
+        return NULL;
+    }
+    
+    if(!fgets(line, BUFFER_READING, stream)) {
+        if(err) *err = READING_ERROR;
+        free(line);
+        return NULL;
+    }
+    
+    Polynomial * p = parsePolynomial(line, err);
+    if(!p) {
+        free(line);
+        return NULL;
+    }
+    
+    free(line);
+    
+    return p;
+}
+        
 
 Polynomial * parsePolynomial(char * poly_str, error_code * err) {
 	if(!poly_str) {

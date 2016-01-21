@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 
-
+#define BUFFER_READING 10000
 
 /** --- Polynomial structures --- **/
 
@@ -30,14 +30,15 @@ typedef struct {
 typedef enum error_code {
     NONE,            // no error
     MEM_ALLOC,       // memory allocation failed
-    NULL_PTR,        // if a pointer in the arguments is null and should not be
+    NULL_PTR,        // a pointer in the arguments is null and should not be
     POLY_FORMAT,     // specific to reading a polynomial : string has not the right polynomial format
-    DIVISION_BY_ZERO // speaks by itself. Used by the division function.
+    DIVISION_BY_ZERO,// speaks by itself. Used by the division function.
+    READING_ERROR    // if fgets can't read the given stream.
 } error_code;
 
 /* Prints a message corresponding to the error, in the given stream.
  * If err is a NULL pointer, or if it is 'none', it prints nothing.
- * Last argument enables the user to prints additional details */
+ * Last argument enables the user to print additional details. */
 void printError(FILE * stream, error_code * err, char * details);
 
 
@@ -73,6 +74,11 @@ Polynomial * copyPolynomial(Polynomial * src, error_code * err);
 /* Prints the given polynomial in the 'stream'.
  * Places eventual error in 'err'. */
 void printPolynomial(FILE * stream, Polynomial * poly, error_code * err);
+
+/* Reads polynomial from the given 'stream'.
+ * Returns NULL if an error occured.
+ * Places eventual error in 'err'. */
+Polynomial * readPolynomial(FILE * stream, error_code * err);
 
 /* returns a polynomial pointer, from the given string. Places eventual errors code 
  * in 'err', and if so, returns eventually NULL (it tries to read polynomial even 
