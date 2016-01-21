@@ -61,7 +61,7 @@ int test_all() {
 int test_createNullPolynomial() {
     printf("--- Test createNullPolynomial ---\n");
     
-    error_code err = none;
+    error_code err = NONE;
     Polynomial * p = createNullPolynomial(&err);
     if(!p) {
         printError(stdout, &err, NULL);
@@ -82,7 +82,7 @@ int test_createNullPolynomial() {
 int test_copyPolynomial() {
     printf("--- Test copyPolynomial ---\n");
     
-    error_code err = none;
+    error_code err = NONE;
     
     Monomial m1, m2;
     m1.next = &m2;
@@ -107,7 +107,7 @@ int test_copyPolynomial() {
 int test_addPolynomials() {
     printf("--- Test addPolynomials ---\n");
 
-    error_code err = none;
+    error_code err = NONE;
     
     Polynomial *p1 = createNullPolynomial(&err),
                 *p2 = createNullPolynomial(&err);
@@ -120,7 +120,7 @@ int test_addPolynomials() {
     
     /* test of 0+0 */
     addPolynomials(p1, p2->monomials, &err);
-    if(err != none) {
+    if(err != NONE) {
         freePolynomial(p1);
         freePolynomial(p2);
         printError(stdout, &err, NULL);
@@ -145,7 +145,7 @@ int test_addPolynomials() {
     p2->monomials->next = createMonomial(0, 0 ,&err);
     p2->degree = 1;
     
-    if(err != none) {
+    if(err != NONE) {
         freePolynomial(p1);
         freePolynomial(p2);
         printError(stdout, &err, NULL);
@@ -153,7 +153,7 @@ int test_addPolynomials() {
     }
     
     addPolynomials(p2, p1->monomials, &err);
-    if(err != none) {
+    if(err != NONE) {
         freePolynomial(p1);
         freePolynomial(p2);
         printError(stdout, &err, NULL);
@@ -176,7 +176,7 @@ int test_addPolynomials() {
    
 int test_parsePolynomial() {
     printf("--- Test parsePolynomial ---\n");
-    error_code err = none;
+    error_code err = NONE;
     Polynomial * p1 = createNullPolynomial(&err);
     if(!p1) {
         printError(stdout, &err, NULL);
@@ -231,7 +231,7 @@ int test_parsePolynomial() {
 int test_differentiatePolynomial() {
     printf("--- Test differentiatePolynomial ---\n");
     
-    error_code err = none;
+    error_code err = NONE;
 
     Polynomial * p1 = parsePolynomial("1 0", &err);
     Polynomial * p2 = parsePolynomial("0 0", &err);
@@ -243,7 +243,7 @@ int test_differentiatePolynomial() {
     }
     
     differentiatePolynomial(p1, &err);
-    if(err != none) {
+    if(err != NONE) {
         printError(stdout, &err, NULL);
         freePolynomial(p1);
         freePolynomial(p2);
@@ -269,7 +269,7 @@ int test_differentiatePolynomial() {
     }
     
     differentiatePolynomial(p1, &err);
-    if(err != none) {
+    if(err != NONE) {
         printError(stdout, &err, NULL);
         freePolynomial(p1);
         freePolynomial(p2);

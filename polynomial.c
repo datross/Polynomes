@@ -6,19 +6,19 @@
 #include "polynomial.h"
 
 void printError(FILE * stream, error_code * err, char * details) {
-    if(err && *err != none && stream) {
+    if(err && *err != NONE && stream) {
         fprintf(stream, "ERROR %d : ", *err);
         switch(*err) {
-            case mem_alloc:
+            case MEM_ALLOC:
                 fprintf(stream, "memory allocation failed.");
                 break;
-            case null_ptr:
+            case NULL_PTR:
                 fprintf(stream, "an argument is NULL and should not be.");
                 break;
-            case poly_format:
+            case POLY_FORMAT:
                 fprintf(stream, "polynomial string has not a valid format.");
                 break;
-            case division_by_zero:
+            case DIVISION_BY_ZERO:
                 fprintf(stream, "division by zero.");
                 break;
             default:
@@ -34,7 +34,7 @@ void printError(FILE * stream, error_code * err, char * details) {
 Monomial * createMonomial(double coefficient, long degree, error_code * err) {
     Monomial * monomial = malloc(sizeof(Monomial));
     if(!monomial) {
-        if(err) *err = mem_alloc;
+        if(err) *err = MEM_ALLOC;
         return NULL;
     }
 
@@ -48,7 +48,7 @@ Monomial * createMonomial(double coefficient, long degree, error_code * err) {
 Polynomial * createNullPolynomial(error_code * err) {
     Polynomial * poly = malloc(sizeof(Polynomial));
     if(!poly) {
-        if(err) *err = mem_alloc;
+        if(err) *err = MEM_ALLOC;
         return NULL;
     }
     
@@ -101,7 +101,7 @@ Polynomial * copyPolynomial(Polynomial * src, error_code * err) {
         return NULL;
     Polynomial * dest = malloc(sizeof(Polynomial));
     if(!dest) {
-        if(err) *err = mem_alloc;
+        if(err) *err = MEM_ALLOC;
         return NULL;
     }
     dest->monomials = copyList(src->monomials, err);
@@ -112,7 +112,7 @@ Polynomial * copyPolynomial(Polynomial * src, error_code * err) {
 
 void printPolynomial(FILE * stream, Polynomial * poly, error_code * err) {
 	if(!poly || !(poly->monomials) || !stream) {
-		if(err) *err = null_ptr;
+		if(err) *err = NULL_PTR;
 		return;
 	}
 	
@@ -131,7 +131,7 @@ void printPolynomial(FILE * stream, Polynomial * poly, error_code * err) {
 
 Polynomial * parsePolynomial(char * poly_str, error_code * err) {
 	if(!poly_str) {
-        if(err) *err = null_ptr;
+        if(err) *err = NULL_PTR;
         return NULL;
     }
     
@@ -151,23 +151,23 @@ Polynomial * parsePolynomial(char * poly_str, error_code * err) {
 		poly_str = end;
 		degree = strtol(poly_str, &end, 10);
 		if(end == poly_str || degree < 0) { // if this conversion doesn't work, there is a problem in "pol_str" format
-            if(err) *err = poly_format;
+            if(err) *err = POLY_FORMAT;
 			return poly;
 		}
 		poly_str = end;
 		
         if(!(buffer = createMonomial(coefficient, degree, err)))
             return NULL;
-        if(err) *err = none;
+        if(err) *err = NONE;
 		addPolynomials(poly, buffer, err);
-        if(err && *err != none)
+        if(err && *err != NONE)
             return NULL;
 	}
 }
 
 void addPolynomials(Polynomial * poly, List * list_to_add, error_code * err) {
     if(!poly || !(poly->monomials)) {
-        if(err) *err = null_ptr;
+        if(err) *err = NULL_PTR;
         return;
     }
     
@@ -213,7 +213,7 @@ void addPolynomials(Polynomial * poly, List * list_to_add, error_code * err) {
 
 void differentiatePolynomial(Polynomial * poly, error_code * err) {
     if(!poly || !(poly->monomials)) {
-        if(err) *err = null_ptr;
+        if(err) *err = NULL_PTR;
         return;
     }
     
@@ -234,7 +234,7 @@ void differentiatePolynomial(Polynomial * poly, error_code * err) {
 
 void multiplyPolynomials(Polynomial * poly, List * factor, error_code * err) {
     if(!poly || !(poly->monomials) || !factor) {
-        if(err) *err = null_ptr;
+        if(err) *err = NULL_PTR;
         return;
     }
 
@@ -277,7 +277,7 @@ void multiplyPolynomials(Polynomial * poly, List * factor, error_code * err) {
 
 void powerPolynomial(Polynomial * poly, unsigned int n, error_code * err) {
     if(!poly || !(poly->monomials)) {
-        if(err) *err = null_ptr;
+        if(err) *err = NULL_PTR;
         return;
     }
     
@@ -308,7 +308,7 @@ void powerPolynomial(Polynomial * poly, unsigned int n, error_code * err) {
 
 double evaluatePolynomial(Polynomial * poly, double x, error_code * err) {
     if(!poly || !(poly->monomials)) {
-        if(err) *err = null_ptr;
+        if(err) *err = NULL_PTR;
         return 0.;
     }
     
@@ -324,7 +324,7 @@ double evaluatePolynomial(Polynomial * poly, double x, error_code * err) {
 
 double evaluatePolynomialHorner(Polynomial * poly, double x, error_code * err) {
     if(!poly || !(poly->monomials)) {
-        if(err) *err = null_ptr;
+        if(err) *err = NULL_PTR;
         return 0.;
     }
     
@@ -342,12 +342,12 @@ double evaluatePolynomialHorner(Polynomial * poly, double x, error_code * err) {
 
 void dividePolynomials(List * dividend, List * divisor, Polynomial * quotient, Polynomial * remainder, error_code * err) {
     if(!dividend || !divisor) {
-        if(err) *err = null_ptr;
+        if(err) *err = NULL_PTR;
         return;
     }
     
     if(!(divisor->coefficient)) {
-        if(err) *err = division_by_zero;
+        if(err) *err = DIVISION_BY_ZERO;
         return;
     }        
 
@@ -359,7 +359,7 @@ void dividePolynomials(List * dividend, List * divisor, Polynomial * quotient, P
     if(!tmp_quotient || !tmp_remainder) {
         freePolynomial(tmp_quotient);
         freePolynomial(tmp_remainder);
-        if(err && *err == none) *err = mem_alloc;
+        if(err && *err == NONE) *err = MEM_ALLOC;
         return;
     }
     tmp_remainder->degree = dividend->degree;
@@ -416,7 +416,7 @@ void dividePolynomials(List * dividend, List * divisor, Polynomial * quotient, P
 
 Polynomial * gcdPolynomials(List * a, List * b, error_code * err) {
     if(!a || !b) {
-        if(err) *err = null_ptr;
+        if(err) *err = NULL_PTR;
         return NULL;
     }
     

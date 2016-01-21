@@ -28,11 +28,11 @@ typedef struct {
 
 
 typedef enum error_code {
-    none,            // no error
-    mem_alloc,       // memory allocation failed
-    null_ptr,        // if a pointer in the arguments is null and should not be
-    poly_format,     // specific to reading a polynomial : string has not the right polynomial format
-    division_by_zero // speaks by itself. Used by the division function.
+    NONE,            // no error
+    MEM_ALLOC,       // memory allocation failed
+    NULL_PTR,        // if a pointer in the arguments is null and should not be
+    POLY_FORMAT,     // specific to reading a polynomial : string has not the right polynomial format
+    DIVISION_BY_ZERO // speaks by itself. Used by the division function.
 } error_code;
 
 /* Prints a message corresponding to the error, in the given stream.
