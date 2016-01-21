@@ -53,6 +53,12 @@ int test_all() {
     if(!test_addPolynomials()) return 0;
     if(!test_parsePolynomial()) return 0;
     if(!test_differentiatePolynomial()) return 0;
+    if(!test_multiplyPolynomials()) return 0;
+    if(!test_powerPolynomial()) return 0;
+    if(!test_evaluatePolynomial()) return 0;
+    if(!test_evaluatePolynomialHorner()) return 0;
+    if(!test_dividePolynomials()) return 0;
+    if(!test_gcdPolynomials()) return 0;
     
     return 1;
 }
@@ -288,3 +294,340 @@ int test_differentiatePolynomial() {
     
     return 1;
 }
+
+int test_multiplyPolynomials() {
+    printf("--- Test multiplyPolynomials ---\n");
+    
+    error_code err = NONE;
+    
+    Polynomial *p1 = parsePolynomial("0 0", &err),
+               *p2 = parsePolynomial("0 0", &err),
+               *p3 = parsePolynomial("1 1 1 0", &err),
+               *p4 = parsePolynomial("0 0", &err),
+               *p5 = parsePolynomial("0 0", &err),
+               *p6 = parsePolynomial("1 1 1 0", &err),
+               *p7 = parsePolynomial("1 1 -1 0", &err),
+               *p8 = parsePolynomial("1 1 1 0", &err),
+               *p9 = parsePolynomial("1 2 -1 0", &err);
+               
+    if(!p1 || !p2 || !p3 || !p4 || !p5 || !p6 || !p7 || !p8 || !p9) {
+        printError(stdout, &err, NULL);
+        freePolynomial(p1);
+        freePolynomial(p2);
+        freePolynomial(p3);
+        freePolynomial(p4);
+        freePolynomial(p5);
+        freePolynomial(p6);
+        freePolynomial(p7);
+        freePolynomial(p8);
+        freePolynomial(p9);
+        return 0;
+    }
+    
+    multiplyPolynomials(p1, p2->monomials, &err);
+    multiplyPolynomials(p3, p4->monomials, &err);
+    multiplyPolynomials(p5, p6->monomials, &err);
+    multiplyPolynomials(p7, p8->monomials, &err);
+    
+    if(err != NONE) {
+        printError(stdout, &err, NULL);
+        freePolynomial(p1);
+        freePolynomial(p2);
+        freePolynomial(p3);
+        freePolynomial(p4);
+        freePolynomial(p5);
+        freePolynomial(p6);
+        freePolynomial(p7);
+        freePolynomial(p8);
+        freePolynomial(p9);
+        return 0;
+    }
+    
+    if(!comparePolynomials(p1, p2)
+        || !comparePolynomials(p3, p4)
+        || !comparePolynomials(p5, p1)
+        || !comparePolynomials(p7, p9)) {
+        printf("  Wrong result for multiplication.\n");
+        freePolynomial(p1);
+        freePolynomial(p2);
+        freePolynomial(p3);
+        freePolynomial(p4);
+        freePolynomial(p5);
+        freePolynomial(p6);
+        freePolynomial(p7);
+        freePolynomial(p8);
+        freePolynomial(p9);
+        return 0;
+    }
+
+    freePolynomial(p1);
+    freePolynomial(p2);
+    freePolynomial(p3);
+    freePolynomial(p4);
+    freePolynomial(p5);
+    freePolynomial(p6);
+    freePolynomial(p7);
+    freePolynomial(p8);
+    freePolynomial(p9);
+    
+    return 1;
+}
+
+int test_powerPolynomial() {
+    printf("--- Test powerPolynomial ---\n");
+    
+    error_code err = NONE;
+    
+    Polynomial *factor = parsePolynomial("1 2 1 1 1 0", &err),
+                *p1 = parsePolynomial("1 0", &err),
+                *p2;
+    if(!factor || !p1) {
+        printError(stdout, &err, NULL);
+        freePolynomial(factor);
+        freePolynomial(p1);
+        return 0;
+    }
+    
+    int i = 0;
+    for(; i < 10; ++i) {
+        p2 = copyPolynomial(factor, &err);
+        if(!p2) {
+            printError(stdout, &err, NULL);
+            freePolynomial(factor);
+            freePolynomial(p1);
+            freePolynomial(p2);
+            return 0;
+        }
+        
+        powerPolynomial(p2, i, &err);
+        
+        if(err != NONE) {
+            printError(stdout, &err, NULL);
+            freePolynomial(factor);
+            freePolynomial(p1);
+            freePolynomial(p2);
+            return 0;
+        }
+        
+        if(!comparePolynomials(p1, p2)) {
+            printf("  Wrong power : %d.\n", i);
+            freePolynomial(factor);
+            freePolynomial(p1);
+            freePolynomial(p2);
+            return 0;
+        }
+        
+        multiplyPolynomials(p1, factor->monomials, &err);
+        
+        freePolynomial(p2);
+        p2 = NULL;
+    }
+    
+    freePolynomial(factor);
+    freePolynomial(p1);
+    freePolynomial(p2);
+            
+    return 1;
+}
+
+int test_evaluatePolynomial() {
+    printf("--- Test evaluatePolynomial ---\n");
+    
+    error_code err = NONE;
+    
+    Polynomial *p1 = parsePolynomial("0 0", &err),
+                *p2 = parsePolynomial("1 1 1 0", &err);
+    if(!p1 || !p2) {
+        printError(stdout, &err, NULL);
+        freePolynomial(p1);
+        freePolynomial(p2);
+        return 0;
+    }
+    
+    double a = evaluatePolynomial(p1, 0.2, &err);
+    double b = evaluatePolynomial(p2, 0.2, &err);
+    if(err != NONE) {
+        printError(stdout, &err, NULL);
+        freePolynomial(p1);
+        freePolynomial(p2);
+        return 0;
+    }
+    
+    if(a != 0. || b != 1.2) {
+        printf("  Wrong evaluation.\n");
+        freePolynomial(p1);
+        freePolynomial(p2);
+        return 0;
+    }
+    
+    freePolynomial(p1);
+    freePolynomial(p2);
+    
+    return 1;
+}
+
+int test_evaluatePolynomialHorner() {
+    printf("--- Test evaluatePolynomialHorner ---\n");
+    
+    error_code err = NONE;
+    
+    Polynomial *p1 = parsePolynomial("0 0", &err),
+                *p2 = parsePolynomial("1 1 1 0", &err);
+    if(!p1 || !p2) {
+        printError(stdout, &err, NULL);
+        freePolynomial(p1);
+        freePolynomial(p2);
+        return 0;
+    }
+    
+    double a = evaluatePolynomialHorner(p1, 0.2, &err);
+    double b = evaluatePolynomialHorner(p2, 0.2, &err);
+    if(err != NONE) {
+        printError(stdout, &err, NULL);
+        freePolynomial(p1);
+        freePolynomial(p2);
+        return 0;
+    }
+    
+    if(a != 0. || b != 1.2) {
+        printf("  Wrong evaluation.\n");
+        freePolynomial(p1);
+        freePolynomial(p2);
+        return 0;
+    }
+    
+    freePolynomial(p1);
+    freePolynomial(p2);
+    
+    return 1;
+}
+
+int test_dividePolynomials() {
+    printf("--- Test dividePolynomials ---\n");
+    
+    error_code err = NONE;
+    
+    Polynomial *p1 = parsePolynomial("0 0", &err),
+                *p2 = parsePolynomial("1 5 -1 4 -1 3 3 2 -2 1", &err),
+                *p3 = parsePolynomial("1 2 -1 1 1 0", &err),
+                *p4 = parsePolynomial("1 3 -2 1 1 0", &err),
+                *p5 = parsePolynomial("1 1 -1 0", &err),
+                *p6 = createNullPolynomial(&err),
+                *p7 = createNullPolynomial(&err);
+    if(!p1 || !p2 || !p3 || !p4 || !p5 || !p6 || !p7) {
+        printError(stdout, &err, NULL);
+        freePolynomial(p1);
+        freePolynomial(p2);
+        freePolynomial(p3);
+        freePolynomial(p4);
+        freePolynomial(p5);
+        freePolynomial(p6);
+        freePolynomial(p7);
+        return 0;
+    }
+    
+    dividePolynomials(p1->monomials, p2->monomials, p6, p7, &err);
+    if(err != NONE) {
+        printError(stdout, &err, NULL);
+        freePolynomial(p1);
+        freePolynomial(p2);
+        freePolynomial(p3);
+        freePolynomial(p4);
+        freePolynomial(p5);
+        freePolynomial(p6);
+        freePolynomial(p7);
+        return 0;
+    }
+    
+    if(!comparePolynomials(p1, p6) || !comparePolynomials(p1, p7)) {
+        printf("  Wrong division : 0 / A.\n");
+        freePolynomial(p1);
+        freePolynomial(p2);
+        freePolynomial(p3);
+        freePolynomial(p4);
+        freePolynomial(p5);
+        freePolynomial(p6);
+        freePolynomial(p7);
+        return 0;
+    }
+    
+    dividePolynomials(p2->monomials, p3->monomials, p6, p7, &err);
+    if(err != NONE) {
+        printError(stdout, &err, NULL);
+        freePolynomial(p1);
+        freePolynomial(p2);
+        freePolynomial(p3);
+        freePolynomial(p4);
+        freePolynomial(p5);
+        freePolynomial(p6);
+        freePolynomial(p7);
+        return 0;
+    }
+    
+    if(!comparePolynomials(p4, p6) || !comparePolynomials(p5, p7)) {
+        printf("  Wrong division : A / B.\n");
+        freePolynomial(p1);
+        freePolynomial(p2);
+        freePolynomial(p3);
+        freePolynomial(p4);
+        freePolynomial(p5);
+        freePolynomial(p6);
+        freePolynomial(p7);
+        return 0;
+    }
+    
+    freePolynomial(p1);
+    freePolynomial(p2);
+    freePolynomial(p3);
+    freePolynomial(p4);
+    freePolynomial(p5);
+    freePolynomial(p6);
+    freePolynomial(p7);
+    
+    return 1;
+}
+
+int test_gcdPolynomials() {
+    printf("--- Test gcdPolynomials ---\n");
+    
+    error_code err = NONE;
+    
+    Polynomial *p1 = parsePolynomial("1 2 -1 0", &err),
+                *p2 = parsePolynomial("1 3 1 2 1 1 1 0", &err),
+                *p3 = parsePolynomial("1 1 1 0", &err),
+                *p4;
+    if(!p1 || !p2 || !p3) {
+        printError(stdout, &err, NULL);
+        freePolynomial(p1);
+        freePolynomial(p2);
+        freePolynomial(p3);
+        return 0;
+    }
+
+    p4 = gcdPolynomials(p1->monomials, p2->monomials, &err);
+    if(!p4) {
+        printError(stdout, &err, NULL);
+        freePolynomial(p1);
+        freePolynomial(p2);
+        freePolynomial(p3);
+        return 0;
+    }
+    
+    if(!comparePolynomials(p3, p4)) {
+        printf("  Wrong gcd.\n");
+        freePolynomial(p1);
+        freePolynomial(p2);
+        freePolynomial(p3);
+        freePolynomial(p4);
+        return 0;
+    }
+
+    freePolynomial(p1);
+    freePolynomial(p2);
+    freePolynomial(p3);
+    freePolynomial(p4);
+    
+    return 1;
+}
+    
+    
