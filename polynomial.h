@@ -67,7 +67,7 @@ void freePolynomial(Polynomial * poly);
 List * copyList(List * src, error_code * err);
 
 /* Returns a copy of 'src'.
-* It does not check validity if the polynomial.
+ * It does not check validity of the polynomial.
  * Places eventual error in 'err'. */
 Polynomial * copyPolynomial(Polynomial * src, error_code * err);
 
@@ -95,7 +95,7 @@ void addPolynomials(Polynomial * poly, List * list_to_add, error_code * err);
  * Places eventual error in 'err'. */
 void differentiatePolynomial(Polynomial * poly, error_code * err);
 
-/* Multiply 'poly' with the given polynomial factor.
+/* Multiply 'poly' with the given polynomial factor ('factor' isn't modified).
  * It keeps ordered 'poly'.
  * Places eventual error in 'err'. */
 void multiplyPolynomials(Polynomial * poly, List * factor, error_code * err);
@@ -115,18 +115,16 @@ double evaluatePolynomial(Polynomial * poly, double x, error_code * err);
  * Eventual error is places in 'err'. */
 double evaluatePolynomialHorner(Polynomial * poly, double x, error_code * err);
 
-/* Divides dividend by divisor.
+/* Divides dividend by divisor (they aren't modified).
  * If 'quotient' and 'remainder' aren't respectivly null, the quotient and remainder of
  * the division are respectivly placed in the corresponding argument.
  * Places eventual error in 'err'. */
 void dividePolynomials(List * dividend, List * divisor, Polynomial * quotient, Polynomial * remainder, error_code * err);
 
-/* Returns a pointer toward gcd of a and b. 
+/* Returns a pointer toward gcd of a and b (a and b aren't modified). 
  * It returns a monic polynomial.
  * Conventions : gcd(0,P) = gcd(P,0) = P et gcd(0,0) = 0
  * In error case, it returns NULL and places error_code in 'err'. */
 Polynomial * gcdPolynomials(List * a, List * b, error_code * err);
-
-//!\ TODO : verif des commentaires sur les effets de bord des fonctions
 
 #endif //POLYNOMIAL_MODULE
