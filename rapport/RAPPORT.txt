@@ -1,0 +1,168 @@
+** RAPPORT DU PROJET DE C SUR LES POLYNÔMES, JANVIER 2016 **
+
+    | Crespin--Pommier Maël
+    | Respaud-Bouny Henri
+
+Les fichiers constituant le projet sont :
+
+		    Makefile
+		polynomial.h Regroupe toutes les structures et prototypes des fonctions 
+                     permettant la manipulation de polynômes.
+		      test.h Regroupe toutes les fonctions de test des fonctions 
+                     présentes dans 'polynomial.h'. 
+		      main.c Présente un exemple simple d'utilisation d'écriture et 
+                     de lecture d'un polynôme dans la console et dans 
+                     un fichier.
+		 main_test.c Permet simplement d'avoir un programme 'test' qui exécute 
+                     les fonctions de test.
+		polynomial.c
+             tests.c
+             
+L'ensemble des fonctionnalités du cahier des charges est implémenté.
+Aucun disfonctionnement ou bug non résolu n'est connu.
+             
+    1] STRUCTURES DE DONNÉES -------------------------------------------------
+    
+        1.1. Polynômes ------------------------
+        
+    Les structures de données utilsées pour le stockage des polynômes sont les
+mêmes que celles données dans le sujet.
+    Ainsi une polynôme a un degré, et un pointeur vers une liste chaînée de
+monômes. 
+    On définit comme valide un polynôme si :
+        - son degré vaut le plus haut degré des monômes le composant.
+        - les monômes sont stockés par ordre strictement décroissant de degré.
+        - il possède un monôme de degré 0 (la liste ne peut donc être vide).
+        - aucun monôme ne voit son coefficient égal à 0, sauf celui de degré 0.
+     
+    Il en découle la convention adoptée pour le polynôme nul : son degré vaut 0 
+et il a un seul monôme, de degré et de coefficient 0.
+    Toutes les fonctions de manipulation des polynômes sont écrites pour 
+fonctionner avec des polynômes valides en argument, et les polynômes générés par
+ces fonctions sont valides également.
+
+    Les fonctions de création et desctruction de polynôme permettent seulement
+de les stocker sur le tas.
+    Il est recommandé d'utiliser les fonctions suivantes pour créer un 
+polynôme :
+        - createNullPolynomial();
+        - copyPolynomial();
+        - readPolynomial();
+        - parsePolynomial();
+        - gcdPolynomial();
+    Toutes ces fonctions retournent un pointeur sur un polynôme nouvellement
+alloué. Pour libérer la mémoire d'un polynôme, une seule fonction :
+        - freePolynomial();
+                                                        
+    Les fonctions appliquant des opérations mathématiques sur les polynômes
+(ceci n'inclus pas les fonction d'évaluation en un point) ont un effet de bord 
+uniquement sur les arguments de type 'Polynomial*'.
+    Les commentaires accompagnant les prototypes des fonctions précisent si
+le passage d'arguments identiques entre eux à la fonction altère son 
+fonctionnement.
+
+        1.2. Codes d'erreur ------------------------
+        
+    Une énumération est dédiéé au stockage des éventuelles erreurs. Toutes les
+fonctions sauf quelques exceptions prennent en argument un pointeur sur 
+erreur, par lequel elles transmettent les erreurs.
+    La fonction 'printError()' permet d'afficher une message d'erreur 
+correspondant au code d'erreur. 
+    
+    Ainsi lors de l'appel d'une fonction, il est conseillé d'initialiser un code
+d'erreur à 'NONE', de passer son adresse à celle-ci, et ensuite vérifier qu'il 
+est toujours à 'NONE'.
+
+    Les commentaires qui accompagnent les prototypes précisent les valeurs de
+retour en cas d'erreur.
+
+
+
+    2] ALGORITHMES UTILISÉS --------------------------------------------------
+    
+    Voici quelques algorithmes en pseudo-code (ommettant les détails 
+d'implémentation). Les algorithmes basiques (voire évidents) comme la
+multiplication (qui utilise la distributivité) et la dérivation, 
+ne sont pas présentés.
+        
+        2.1. Addition -----------------------
+    
+    A, B deux listes de monômes (valides selon les critères de validité 
+                                des polynômes concernant leur liste de
+                                monômes);
+    // On désigne par A le monôme A, différent de la liste de A
+    Tant que A existe :
+        Tant que B existe et B.degre > A.degre :
+            B = B.next;
+        Fin Tant que
+        
+        // Ici on devrait vérifier que B n'est pas nul, parce qu'il peut
+        // très bien l'être. En pratique il ne peut pas, car les liste
+        // de A et B se termine forcemment par un monôme de degré 0.
+        
+        Si A.degre == B.degre :
+            Si A.coeff + B.coeff == 0 : // le coeff vaudra 0 donc on supprime
+                Supprimer B de sa liste;
+            Sinon :
+                B.coeff += A.coeff;
+            Fin si
+        Sinon :
+            Insérer A juste avant B dans la liste de B;
+        Fin si
+        
+        A = A.next;
+    Fin Tant que
+    
+    // La liste de B correspond maintenant à la somme des polynômes
+    // correspondant aux listes A et B du début de l'algorithme.
+    // L'algorithme ne parcourt qu'une seule fois les monômes des deux listes.
+        
+        2.2. Puissance ---------------------
+    
+    A, B deux polynômes;
+    N un entier;
+    // On veut calculer A^N
+    B = 1;
+    
+    Tant que N != 0 :
+        Si N est pair:
+            N /= 2;
+        Sinon :
+            N = (N-1) / 2;
+            B *= A;
+        Fin si
+        A *= A;
+    Fin Tant que
+    
+    // Ici B = A^N, avec le A du début de l'algorithme.
+    // Ceci est l'algorithme de l'exponentiation rapide.
+        
+        2.3 Division euclidienne -------------------
+        
+    A, B, Q, R polynômes; // B != 0
+    C un monôme;
+    // On veut calculer Q et R tels que A = BQ + R
+    R = A;
+    Q = 0;
+    
+    Tant que degre(B) >= degre(B):
+        C.coeff = (coeff du terme de plus haut degré de R) / (idem pour B);
+        C.degre = degre(R) - degre(B);
+        R =- B*C;
+        Q += C;
+    Fin Tant que
+    
+    // Q et R sont maintenant le quotient et le reste de A / B
+        
+        2.4. Pgcd ----------------------
+        
+    A, B, R polynômes;
+    // convention : PGCD(0,0) = 0
+    Tant que B != 0 :
+        R = reste de A / B;
+        A = B;
+        B = R;
+    Fin Tant que
+    
+    // A est le pgcd des A et B initiaux
+        

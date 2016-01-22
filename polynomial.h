@@ -72,11 +72,15 @@ List * copyList(List * src, error_code * err);
 Polynomial * copyPolynomial(Polynomial * src, error_code * err);
 
 /* Prints the given polynomial in the 'stream'.
+ * Printing format : 
+ *     if stream == stdout : "((%lf, %ld), (%lf, %ld), ...)"
+ *     else : "%lf %ld %lf %ld ...".
  * Places eventual error in 'err'. */
 void printPolynomial(FILE * stream, Polynomial * poly, error_code * err);
 
 /* Reads polynomial from the given 'stream'.
  * Returns NULL if an error occured.
+ * Reading format : "%lf %ld %lf %ld ...".
  * Places eventual error in 'err'. */
 Polynomial * readPolynomial(FILE * stream, error_code * err);
 
@@ -88,6 +92,8 @@ Polynomial * parsePolynomial(char * poly_str, error_code * err);
  
 /* adds polynomials, stores result in Polynomial type argument.
  * Keeps the 'by degree' order. Both 'poly' and 'list_to_add' must be sorted by degree order.
+ * 'list_to_add' and 'poly->monomials' should not be the same in memory, 
+ * otherwise unexpected behaviour is ... to expect.
  * Places eventual error in 'err'. */
 void addPolynomials(Polynomial * poly, List * list_to_add, error_code * err);
 
@@ -118,6 +124,8 @@ double evaluatePolynomialHorner(Polynomial * poly, double x, error_code * err);
 /* Divides dividend by divisor (they aren't modified).
  * If 'quotient' and 'remainder' aren't respectivly null, the quotient and remainder of
  * the division are respectivly placed in the corresponding argument.
+ * 'quotient' and 'remainder' should not be equal, otherwise they will both
+ * receive the remainder of the division.
  * Places eventual error in 'err'. */
 void dividePolynomials(List * dividend, List * divisor, Polynomial * quotient, Polynomial * remainder, error_code * err);
 
